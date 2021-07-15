@@ -65,16 +65,16 @@ class Application(fix.Application): # type: ignore
     def on_Message(self, message: fix.Message, sessionID: fix.SessionID) -> None:
         logger.info(f"unhandled message: `{message}`")
 
-    def on_fix43_Heartbeat(self, message: fix42.Heartbeat.Heartbeat, sessionID: fix.SessionID) -> None:
+    def on_fix43_Heartbeat(self, message: fix42.Heartbeat, sessionID: fix.SessionID) -> None:
         logger.info("Heartbeat callback: {}".format(message))
 
-    def on_fix43_Logon(self, message: fix42.Logon.Logon, sessionID: fix.SessionID) -> None:
+    def on_fix43_Logon(self, message: fix42.Logon, sessionID: fix.SessionID) -> None:
         logger.info("Logon callback: {}".format(message))
 
-    def on_fix43_Logout(self, message: fix42.Logon.Logon, sessionID: fix.SessionID) -> None:
+    def on_fix43_Logout(self, message: fix42.Logon, sessionID: fix.SessionID) -> None:
         logger.info("Logout callback: {}".format(message))
 
-    def on_fix43_ExecutionReport(self, message: fix42.ExecutionReport.ExecutionReport, sessionID: fix.SessionID) -> None:
+    def on_fix43_ExecutionReport(self, message: fix42.ExecutionReport, sessionID: fix.SessionID) -> None:
         logger.info("this is your result for puting new order: {}".format(message))
 
     # def query_order(self) -> None:
@@ -86,7 +86,7 @@ class Application(fix.Application): # type: ignore
     #     fix.Session.sendToTarget(msg, self.sessionID)
 
     def send_order(self) -> None:
-        message = fix42.NewOrderSingle.NewOrderSingle(
+        message = fix42.NewOrderSingle(
             ClOrdID=self.id,
             Side=fix.Side_BUY,
             Symbol="MSFT",
@@ -112,7 +112,6 @@ def main(cfg: str) -> None:
 
     initiator.start()
 
-    time.sleep(3)
     # app.query_order()
     while True:
         option = input("Please choose 1 for put a new order or 2 to exit!\n")

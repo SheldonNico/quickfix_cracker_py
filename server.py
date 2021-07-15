@@ -69,7 +69,7 @@ class Application(fix.Application): # type: ignore
     def on_Message(self, message: fix.Message, sessionID: fix.SessionID) -> None:
         logger.info(f"unhandled message: `{message}`")
 
-    def on_fix43_NewOrderSingle(self, message: fix43.NewOrderSingle.NewOrderSingle, sessionID: fix.SessionID) -> None:
+    def on_fix43_NewOrderSingle(self, message: fix43.NewOrderSingle, sessionID: fix.SessionID) -> None:
         logger.info(f"Got new order: {message}")
         assert message.OrderQty is not None
         assert message.Price is not None
@@ -78,7 +78,7 @@ class Application(fix.Application): # type: ignore
         else:
             pass
 
-        exec_report = fix43.ExecutionReport.ExecutionReport(
+        exec_report = fix43.ExecutionReport(
             OrderID = self.oid,
             ExecID = self.id,
             OrdStatus = fix.OrdStatus_FILLED,

@@ -56,6 +56,8 @@ TYP_MAP: dict[str, t.Any] = {
 
     # NOTE: UTCTIMESTAMP is the only type that use `USER_DEFINE_UTCTIMESTAMP` defined
     # and it can't not be construct through python type
+    #
+    # ref: https://github.com/quickfix/quickfix/issues/251
     'UTCTIMESTAMP': str,
 
     'UTCDATE': str,
@@ -361,26 +363,29 @@ import typing as t # noqa
 import quickfix as fix
 import attr
 import {}
-from . import _bool, _utc_timestamp
+from . import _bool
 
 {}
 
 {}""".format(v_quickfix, consts, "\n\n".join(classes)))
 
-def write_init_to_fiel(
+def write_init_to_file(
     fname: str, m_class_list: list[str],
     classes: dict[t.Tuple[t.Optional[str], str], t.Union[ClassMeta, SubClassMeta]],
     v_major: int, v_minor: int,
 ) -> None:
     print(f"writing init to {fname}")
-    imports = ", ".join(m_class_list)
+    imports = ", ".join([m.lower() for m in m_class_list])
     imports = f"from . import {imports}" if len(m_class_list) > 0 else ""
+
+    ns_imports = "\n".join([f"from .{m.lower()} import {m} as {m} # noqa" for m in m_class_list])
+    # ns_imports = "\n".join([f"{m} = {m.lower()}.{m}" for m in m_class_list])
 
     msgtype_list = []
     for mc in m_class_list:
         m = classes[(None, mc)]
         assert isinstance(m, ClassMeta)
-        msgtype_list.append(f"\"{m.msgtype}\": ({m.name}.{m.name}, \"on_fix{v_major}{v_minor}_{m.name}\")")
+        msgtype_list.append(f"\"{m.msgtype}\": ({m.name}, \"on_fix{v_major}{v_minor}_{m.name}\")")
 
     msgtype_list_s = "\n".join([f"    {m}," for m in msgtype_list])
 
@@ -391,11 +396,8 @@ import quickfix as fix
 def _bool(x: str) -> bool:
     return {{"Y": True, "N": False}}[x]
 
-def _utc_timestamp(x: str) -> fix.UtcTimeStamp:
-    t.setString(x)
-    return t
-
 {imports} # noqa
+{ns_imports}
 
 BeginString: str = "FIX.{v_major}.{v_minor}"
 MESSAGES: dict[str, t.Tuple[t.Any, str]] = {{
@@ -440,14 +442,15 @@ def write_to_file(
     main_class = [k for (ns, k) in classes.keys() if ns is None]
     print(f"class: #{len(main_class)}")
     for classname in main_class:
-        fname = os.path.join(dirname, f"{classname}.py")
+        assert classname.lower() != classname, "Message class name in lower case, you have to find other way to make namespace right"
+        fname = os.path.join(dirname, f"{classname.lower()}.py")
         m_class = classes[(None, classname)]
         s_class = {k: c for (ns, k), c in classes.items() if ns == classname}
         assert isinstance(m_class, ClassMeta)
         assert all(isinstance(v, SubClassMeta) for v in s_class.values())
         write_single_to_file(m_class, s_class, field_map, fname, v_major, v_minor, v_sp) # type: ignore
 
-    write_init_to_fiel(os.path.join(dirname, "__init__.py"), main_class, classes, v_major, v_minor)
+    write_init_to_file(os.path.join(dirname, "__init__.py"), main_class, classes, v_major, v_minor)
 
 def write_module_init_file(
     modules: list[str],
