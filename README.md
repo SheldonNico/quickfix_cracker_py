@@ -1,7 +1,10 @@
-# demo for quickfix(python)
+# demo for quickfix (python)
 
-This repo will generate nice quickfix message class(use attr) like how C++ bindings does. But the performance is bad in
-runtime(lots of if/loop).
+This repo will generate nice quickfix message class(use attrs) like how C++ bindings does. But the performance is bad in runtime(due to runtime tag check and conversion). If you want know how to use quickfix, look at [quickfix-python-samples](https://github.com/rinleit/quickfix-python-samples)
+
+- [build.py](./build.py) script to generate python code
+- [server.py](./server.py) server script
+- [client.py](./client.py) client script
 
 ## how to setup
 ```bash
