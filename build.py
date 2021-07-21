@@ -314,18 +314,22 @@ def write_class_to_file(
     subclass_s = "\n".join([f"{tabs}{s}: list[{s}] = attr.ib(default=[])" for s in subclass])
     constructs_s = "\n".join([f"{tabs}{tabs}{c}" for _, c in constructs1+constructs2])
     constructs_subclass_s = "\n".join([f"{tabs}{tabs}{c}" for c in constructs_subclass])
-    args_s = ", ".join([c for c, _ in constructs1+constructs2] + [f"_{s}" for s in subclass])
+    args = [c for c, _ in constructs1+constructs2] + [f"_{s}" for s in subclass] + ["raw"]
+    assert len(args) == len(set(args)), "args duplicated"
+    args_s = ", ".join(args)
     transforms_s = "\n".join([f"{tabs}{tabs}{f}" for f in transforms])
     if len(fields) + len(subclass) == 0: fields_s = f"{tabs}pass"
     return f"""@attr.s
 class {name}:
 {fields_s}
 {subclass_s}
+{tabs}raw: t.Optional[fix.Message] = attr.ib(default=None, repr=False)
 
 {tabs}@classmethod
 {tabs}def from_raw(cls, m: fix.Message) -> {name}:
 {constructs_s}
 {constructs_subclass_s}
+{tabs}{tabs}raw = m
 {tabs}{tabs}return cls({args_s})
 
 {tabs}def to_raw(self) -> fix.Message:
