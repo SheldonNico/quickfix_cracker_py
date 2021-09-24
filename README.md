@@ -1,6 +1,6 @@
 # demo for quickfix (python)
 
-This repo will generate nice quickfix message class(use attrs) like how C++ bindings does. But the performance is bad in runtime(due to runtime tag check and conversion). If you want know how to use quickfix, look at [quickfix-python-samples](https://github.com/rinleit/quickfix-python-samples)
+This repo will generate nice quickfix message class(use dataclass) like how C++ bindings does. But the performance is bad in runtime(due to runtime tag check and conversion). If you want know how to use quickfix, look at [quickfix-python-samples](https://github.com/rinleit/quickfix-python-samples)
 
 - [build.py](./build.py) script to generate python code
 - [server.py](./server.py) server script
@@ -9,8 +9,8 @@ This repo will generate nice quickfix message class(use attrs) like how C++ bind
 ## how to setup
 ```bash
 # on linux
-conda install -c conda-forge quickfix
-conda install attrs, click
+conda install -c conda-forge quickfix # or python -m pip install quickfix
+conda install click # used in example
 ```
 
 ## how to use

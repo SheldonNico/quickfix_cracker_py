@@ -4,7 +4,7 @@ import click, time, datetime
 import quickfix as fix
 import logger
 
-from spec import fix42, fix43
+from spec import fix43
 
 class Application(fix.Application): # type: ignore
     def __init__(self) -> None:
@@ -35,9 +35,7 @@ class Application(fix.Application): # type: ignore
         message.getHeader().getField(BeginString)
         BeginString = BeginString.getString()
 
-        if BeginString == fix42.BeginString:
-            fix42.crack(self, message, self.on_Message, sessionID)
-        elif BeginString == fix43.BeginString:
+        if BeginString == fix43.BeginString:
             fix43.crack(self, message, self.on_Message, sessionID)
         else:
             logger.error(f"unrecognized BeginString: {BeginString}")
@@ -52,9 +50,7 @@ class Application(fix.Application): # type: ignore
         message.getHeader().getField(BeginString)
         BeginString = BeginString.getString()
 
-        if BeginString == fix42.BeginString:
-            fix42.crack(self, message, self.on_Message, sessionID)
-        elif BeginString == fix43.BeginString:
+        if BeginString == fix43.BeginString:
             fix43.crack(self, message, self.on_Message, sessionID)
         else:
             logger.error(f"unrecognized BeginString: {BeginString}")
@@ -65,16 +61,16 @@ class Application(fix.Application): # type: ignore
     def on_Message(self, message: fix.Message, sessionID: fix.SessionID) -> None:
         logger.info(f"unhandled message: `{message}`")
 
-    def on_fix43_Heartbeat(self, message: fix42.Heartbeat, sessionID: fix.SessionID) -> None:
+    def on_Heartbeat(self, message: fix43.Heartbeat, sessionID: fix.SessionID) -> None:
         logger.info("Heartbeat callback: {}".format(message))
 
-    def on_fix43_Logon(self, message: fix42.Logon, sessionID: fix.SessionID) -> None:
+    def on_Logon(self, message: fix43.Logon, sessionID: fix.SessionID) -> None:
         logger.info("Logon callback: {}".format(message))
 
-    def on_fix43_Logout(self, message: fix42.Logon, sessionID: fix.SessionID) -> None:
+    def on_Logout(self, message: fix43.Logon, sessionID: fix.SessionID) -> None:
         logger.info("Logout callback: {}".format(message))
 
-    def on_fix43_ExecutionReport(self, message: fix42.ExecutionReport, sessionID: fix.SessionID) -> None:
+    def on_ExecutionReport(self, message: fix43.ExecutionReport, sessionID: fix.SessionID) -> None:
         logger.info("this is your result for puting new order: {}".format(message))
 
     # def query_order(self) -> None:
@@ -86,17 +82,17 @@ class Application(fix.Application): # type: ignore
     #     fix.Session.sendToTarget(msg, self.sessionID)
 
     def send_order(self) -> None:
-        message = fix42.NewOrderSingle(
-            ClOrdID=self.id,
-            Side=fix.Side_BUY,
-            Symbol="MSFT",
-            OrderQty=1000,
-            Price=100,
-            OrdType=fix.OrdType_LIMIT,
-            HandlInst=fix.HandlInst_MANUAL_ORDER_BEST_EXECUTION,
-            TimeInForce='0',
-            TransactTime=datetime.datetime.utcnow().strftime("%Y%m%d-%H:%M:%S.%f")[:-3],
-            Text="NewOrderSingle",
+        message = fix43.NewOrderSingle(
+            cl_ord_id=self.id,
+            side=fix43.Side.BUY,
+            symbol="MSFT",
+            order_qty=1000,
+            price=100,
+            ord_type=fix43.OrdType.LIMIT,
+            handl_inst=fix43.HandlInst.MANUAL_ORDER_BEST_EXECUTION,
+            time_in_force=fix43.TimeInForce.DAY,
+            transact_time=datetime.datetime.utcnow().strftime("%Y%m%d-%H:%M:%S.%f")[:-3],
+            text="NewOrderSingle",
         )
         fix.Session.sendToTarget(message.to_raw(), self.sessionID)
         logger.info("Sending new order...")

@@ -4,7 +4,7 @@ import click, time
 import quickfix as fix
 import logger
 
-from spec import fix42, fix43
+from spec import fix43
 
 class Application(fix.Application): # type: ignore
     def __init__(self) -> None:
@@ -39,9 +39,7 @@ class Application(fix.Application): # type: ignore
         message.getHeader().getField(BeginString)
         BeginString = BeginString.getString()
 
-        if BeginString == fix42.BeginString:
-            fix42.crack(self, message, self.on_Message, sessionID)
-        elif BeginString == fix43.BeginString:
+        if BeginString == fix43.BeginString:
             fix43.crack(self, message, self.on_Message, sessionID)
         else:
             logger.error(f"unrecognized BeginString: {BeginString}")
@@ -56,9 +54,7 @@ class Application(fix.Application): # type: ignore
         message.getHeader().getField(BeginString)
         BeginString = BeginString.getString()
 
-        if BeginString == fix42.BeginString:
-            fix42.crack(self, message, self.on_Message, sessionID)
-        elif BeginString == fix43.BeginString:
+        if BeginString == fix43.BeginString:
             fix43.crack(self, message, self.on_Message, sessionID)
         else:
             logger.error(f"unrecognized BeginString: {BeginString}")
@@ -69,30 +65,30 @@ class Application(fix.Application): # type: ignore
     def on_Message(self, message: fix.Message, sessionID: fix.SessionID) -> None:
         logger.info(f"unhandled message: `{message}`")
 
-    def on_fix43_NewOrderSingle(self, message: fix43.NewOrderSingle, sessionID: fix.SessionID) -> None:
+    def on_NewOrderSingle(self, message: fix43.NewOrderSingle, sessionID: fix.SessionID) -> None:
         logger.info(f"Got new order: {message}")
-        assert message.OrderQty is not None
-        assert message.Price is not None
-        if message.OrdType != fix.OrdType_LIMIT:
-            raise fix.IncorrectTagValue(message.OrdType)
+        assert message.order_qty is not None
+        assert message.price is not None
+        if message.ord_type != fix43.OrdType.LIMIT:
+            raise fix.IncorrectTagValue(message.ord_type)
         else:
             pass
 
         exec_report = fix43.ExecutionReport(
-            OrderID = self.oid,
-            ExecID = self.id,
-            OrdStatus = fix.OrdStatus_FILLED,
-            Symbol = message.Symbol,
-            Side = message.Side,
-            CumQty = message.OrderQty,
-            AvgPx = message.Price,
+            order_id = self.oid,
+            exec_id = self.id,
+            ord_status = fix43.OrdStatus.FILLED,
+            symbol = message.symbol,
+            side = message.side,
+            cum_qty = message.order_qty,
+            avg_px = message.price,
             # LastShares = message.OrderQty, # fix43 does not have this field
-            LastPx = message.Price,
-            ClOrdID = message.ClOrdID,
-            OrderQty = message.OrderQty,
+            last_px = message.price,
+            cl_ord_id = message.cl_ord_id,
+            order_qty = message.order_qty,
             # ExecTransType = fix.ExecTransType_NEW, # fix43 does not have this field
-            ExecType = fix.ExecType_FILL,
-            LeavesQty = 0,
+            exec_type = fix43.ExecType.FILL,
+            leaves_qty = 0,
         )
 
         try:
