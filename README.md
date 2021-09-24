@@ -10,7 +10,7 @@ This repo will generate nice quickfix message class(use dataclass) like how C++ 
 ```bash
 # on linux
 conda install -c conda-forge quickfix # or python -m pip install quickfix
-conda install click # used in example
+conda install click attrs # used in example
 ```
 
 ## how to use
